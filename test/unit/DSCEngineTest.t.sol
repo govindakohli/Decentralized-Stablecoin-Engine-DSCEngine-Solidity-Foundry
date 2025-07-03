@@ -89,13 +89,15 @@ contract DESEngineTest is Test {
         vm.stopPrank();
     }
     
-    modifier depositCollateral() {
+    modifier depositCollateral() {   
         vm.startPrank(USER);
         ERC20Mock(weth).approve(address(dsce), AMOUNT_COLLATERAL);
         dsce.depositCollateral(weth, AMOUNT_COLLATERAL);
         vm.stopPrank();
         _;
     }
+
+    // hello from testing 
 
     function testCanDepositCollateralAndGetAccountInfo() public depositCollateral {
     (uint256 totalDscMinted , uint256 collateralValueInUsd) = dsce.getAccountInformation(USER);
