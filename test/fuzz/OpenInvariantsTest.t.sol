@@ -5,8 +5,6 @@
 // // 1. The total supply of DSC should be less than the total value of collateral
 // // 2. Getter view function should never revert <- evergreen invariant
 
-
-
 // // SPDX-License-Identifier: MIT
 // pragma solidity ^0.8.29;
 
@@ -52,4 +50,3 @@
 //     assert(wethValue + wbtcValue >= totalSupply);
 //     }
 // }
-
