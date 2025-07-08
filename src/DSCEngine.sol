@@ -29,6 +29,7 @@ import {ReentrancyGuard} from "../lib/openzeppelin-contracts/contracts/utils/Ree
 import {IERC20} from "../lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol";
 import {AggregatorV3Interface} from
     "../lib/chainlink-brownie-contracts/contracts/src/v0.5/interfaces/AggregatorV3Interface.sol";
+import {OracleLib} from "../src/libraries/OracleLib.sol";
 
 /**
  * @title DSCEngine
@@ -61,6 +62,12 @@ contract DSCEngine is ReentrancyGuard {
     error DSCEngine__MintFaild();
     error DSCEngie__HealthFactorOk();
     error DESEngine__HealthFactorNotImproved();
+
+    /////////////////
+    // Type    //
+    /////////////////
+
+    using OracleLib for AggregatorV3Interface;
 
     /////////////////
     // State Variables    //
@@ -329,7 +336,6 @@ contract DSCEngine is ReentrancyGuard {
         // $2000 / ETH. $1000 = 0.5 ETH
         AggregatorV3Interface priceFeed = AggregatorV3Interface(s_priceFeeds[token]);
         (, int256 price,,,) = priceFeed.latestRoundData();
-
         return (usdAmountInWei * PRECISION) / (uint256(price) * ADDITIONAL_FEED_PRECISION);
     }
 
@@ -346,7 +352,7 @@ contract DSCEngine is ReentrancyGuard {
 
     function getUsdValue(address token, uint256 amount) public view returns (uint256) {
         AggregatorV3Interface priceFeed = AggregatorV3Interface(s_priceFeeds[token]);
-        (, int256 price,,,) = priceFeed.latestRoundData();
+        (, int256 price,,,) = priceFeed.latestRoundData(); // updated staleCheckLatestRoundData
         // 1 ETH = $1000
         // The retruned value from CL will be 1000 * 1e8
         return ((uint256(price) * ADDITIONAL_FEED_PRECISION) * amount) / PRECISION; // (1000 * 1e8 * (1e10)) *1000 * 1e18;
@@ -376,5 +382,9 @@ contract DSCEngine is ReentrancyGuard {
 
     function getCollateralbalanceOfUser(address user, address token) external view returns (uint256) {
         return s_collateralDeposited[user][token];
+    }
+
+    function getCollateralTokenPriceFeed(address token) external view returns (address) {
+        return s_priceFeeds[token];
     }
 }
